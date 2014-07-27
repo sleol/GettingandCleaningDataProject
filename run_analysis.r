@@ -63,4 +63,43 @@ run_analysis <- function() {
   # 4. Appropriately labels the data set with descriptive variable names. 
   #
   
+  # Updating the colNames vector to include the new column names after merge
+  colNames  = colnames(labeledData); 
+  
+  # Cleaning up the variable names
+  for (i in 1:length(colNames))
+  {
+    colNames[i] = gsub("\\()","",colNames[i])
+    colNames[i] = gsub("-std$","StdDev",colNames[i])
+    colNames[i] = gsub("-mean","Mean",colNames[i])
+    colNames[i] = gsub("^(t)","time",colNames[i])
+    colNames[i] = gsub("^(f)","freq",colNames[i])
+    colNames[i] = gsub("([Gg]ravity)","Gravity",colNames[i])
+    colNames[i] = gsub("([Bb]ody[Bb]ody|[Bb]ody)","Body",colNames[i])
+    colNames[i] = gsub("[Gg]yro","Gyro",colNames[i])
+    colNames[i] = gsub("AccMag","AccMagnitude",colNames[i])
+    colNames[i] = gsub("([Bb]odyaccjerkmag)","BodyAccJerkMagnitude",colNames[i])
+    colNames[i] = gsub("JerkMag","JerkMagnitude",colNames[i])
+    colNames[i] = gsub("GyroMag","GyroMagnitude",colNames[i])
+  };
+  
+  # Reassigning the new descriptive column names to the finalData set
+  colnames(labeledData) = colNames;
+
+  # write data to csv
+  write.table(labeledData,"mergedmeans&std.txt")
+  
+  
+  #
+  # 5. Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
+  #
+
+  # remove activity type column from data (to make getting the means possible across the whole data set)
+  labeledDnoAT  <- labeledData[,names(labeledData) != 'activityType'];
+  
+  # aggregate the data by activityID, SubjectID taking means
+  tidyData <- aggregate(labeledDnoAT[,names(labeledDnoAT) != c('activityId','subjectId')],
+                       by=list(activityId=labeledDnoAT$activityId,subjectId = labeledDnoAT$subjectId),mean);
+  # write data set to csv
+  write.table(tidyData,"tidyData.txt")
 }
